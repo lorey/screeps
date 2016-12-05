@@ -1,6 +1,12 @@
 module.exports = function() {
     Creep.prototype.moveToAndHarvestNearestPowerSource = 
     function() {
+        // try to pick up energy laying around
+        var droppedEnergy = this.pos.findClosestByPath(FIND_DROPPED_ENERGY);
+        if (droppedEnergy && droppedEnergy.pos.getRangeTo(this.pos) < 2 && this.pickup(droppedEnergy) == ERR_NOT_IN_RANGE) {
+            this.moveTo(droppedEnergy);
+        }
+        
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (s) => {
                 return s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0;
