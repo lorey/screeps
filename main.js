@@ -2,6 +2,7 @@ require('prototype.spawn')();
 require('prototype.creep')();
 
 var brainCreeps = require('brain.creeps');
+var brainExtensions = require('brain.extensions');
 var brainRoads = require('brain.roads');
 var brainWalls = require('brain.walls');
 var roleHarvester = require('role.harvester');
@@ -81,7 +82,7 @@ module.exports.loop = function () {
             'min': 1
         },
         'miner': {
-            'min': containerCount + Math.min(1, containerCount) // one more for efficiency
+            'min': 2 * containerCount // one for backup
         }
     };
     
@@ -125,6 +126,6 @@ module.exports.loop = function () {
     var energyLevel = Math.max(Game.spawns.Spawn1.room.energyCapacityAvailable - 300, 300); // remove spawn energy as this takes too long
     Game.spawns.Spawn1.createCreepByEnergy(energyLevel, roleToBuild);
     
-    
+    brainExtensions.build();
     brainRoads.build();
 }
