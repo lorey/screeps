@@ -103,7 +103,7 @@ module.exports = {
         if (constructionSites == 0 && Game.time % roadInterval == (roadInterval - 1)) { // make sure shortest paths are done
             console.log('Road construction check')
             var orders = 0;
-            var maxOrders = 0;
+            var maxOrders = 1;
             
             // sort usage
             var map = Memory.mapUsage;
@@ -121,9 +121,20 @@ module.exports = {
                 var usage = sortable[pos][1] / (Game.time % roadInterval + 1);
                 
                 if (orders < maxOrders && roomPosition.lookFor(LOOK_STRUCTURES).length == 0) {
-                    console.log('Building a road at ' + roomPosition)
-                    roomPosition.createConstructionSite(STRUCTURE_ROAD);
-                    orders++;
+                    // make sure most used roads are extensions of shortest path but dont destroy it
+                    var adjacentInShortestPath = 0;
+                    for (let x = -1; x <= 1; x++) {
+                        for (let y = -1; y <= 1; y++) {
+                            adjacentInShortestPath += this.isInShortestPath(position.x + x, position.y + y);
+                        }
+                        
+                    }
+                    
+                    if (adjacentInShortestPath <= 2) {
+                        console.log('Building a road at ' + roomPosition)
+                        roomPosition.createConstructionSite(STRUCTURE_ROAD);
+                        orders++;
+                    }
                 }
             }
             
