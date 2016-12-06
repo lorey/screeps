@@ -16,6 +16,8 @@ var tools = require('tools');
 module.exports.loop = function () {
     tools.clearMemory();
 
+    brainRoads.rememberShortestPaths();
+    brainRoads.rememberTileUsage();
     brainCreeps.remember();
     brainWalls.remember();
     
