@@ -21,12 +21,12 @@ module.exports.loop = function () {
     brainCreeps.remember();
     brainWalls.remember();
     
-    if (brainCreeps.getRoleCount('harvester') < 2) {
-        console.log('DANGER: too few harvesters')
-        console.log('converting all upgraders')
-        for(var name in Game.creeps) {
+    if (brainCreeps.getRoleCount('harvester') == 0) {
+        console.log('DANGER: no harvesters')
+        console.log('converting others')
+        for (var name in Game.creeps) {
             var creep = Game.creeps[name];
-            if(creep.memory.role == 'upgrader') {
+            if (creep.memory.role == 'builder' || creep.memory.role == 'repairer' || creep.memory.role == 'wallrepairer') {
                 creep.memory.role = 'harvester';
                 break; // wait until next round
             }
@@ -69,30 +69,36 @@ module.exports.loop = function () {
     }).length;
     var roles = {
         'harvester': {
-            'min': Math.max(8 - 2 * containerCount, 1)
+            'min': Math.max(8 - 3 * containerCount, 2),
+            'max': Math.max(8 - 3 * containerCount, 2)
         },
         'upgrader': {
-            'min': 1 // default later on
+            'min': 1,
+            'max': 5
         },
         'repairer': { //defaults to upgrader
-            'min': 1
+            'min': 1,
+            'max': 1
         },
         'builder': { // defaults to repairers
-            'min': 3 
+            'min': 3,
+            'max': 3
         },
         'wallrepairer': { // defaults to repairer
-            'min': 1
+            'min': 1,
+            'max': 1
         },
         'miner': {
-            'min': 2 * containerCount // one for backup
+            'min': 2 * containerCount, // one for backup
+            'max': 2 * containerCount // one for backup
         }
     };
     
     // stats
-    if (Game.time % 60 == 0) {
+    if (Game.time % 10 == 0) {
         console.log('------------------------------');
         for (role in roles) {
-            console.log(role + ': ' + brainCreeps.getRoleCount(role) + '/' + roles[role]['min']);
+            console.log(role + ': ' + roles[role]['min'] + '/' + brainCreeps.getRoleCount(role) + '/' + roles[role]['max']);
         }
         console.log('------------------------------');
     }
@@ -102,21 +108,17 @@ module.exports.loop = function () {
         Game.spawns.Spawn1.createCreepByEnergy(200, 'harvester');
     }
     
-    if (brainCreeps.getRoleCount('upgrader') == 0) {
-        // create smallest upgrader to start again ASAP
-        Game.spawns.Spawn1.createCreepByEnergy(200, 'upgrader');
-    }
-    
     var buildOrder = [
         'harvester',
-        'upgrader',
         'miner',
         'repairer',
         'builder',
         'wallrepairer',
         'upgrader'
     ];
-    var roleToBuild = 'upgrader';
+    var roleToBuild;
+    
+    // check mins
     for (let i in buildOrder) {
         var role = buildOrder[i];
         if (brainCreeps.getRoleCount(role) < roles[role]['min']) {
@@ -125,8 +127,22 @@ module.exports.loop = function () {
         }
     }
     
-    var energyLevel = Math.max(Game.spawns.Spawn1.room.energyCapacityAvailable - 300, 300); // remove spawn energy as this takes too long
-    Game.spawns.Spawn1.createCreepByEnergy(energyLevel, roleToBuild);
+    // check max
+    for (let i in buildOrder) {
+        var role = buildOrder[i];
+        if (roleToBuild == undefined && brainCreeps.getRoleCount(role) < roles[role]['max']) {
+            roleToBuild = role;
+            break; // exit loop
+        }
+    }
+    
+    if (roleToBuild != undefined) {
+        var energyLevel = Math.max(Game.spawns.Spawn1.room.energyCapacityAvailable - 300, 300); // remove spawn energy as this takes too long
+        Game.spawns.Spawn1.createCreepByEnergy(energyLevel, roleToBuild);
+    } else {
+        console.log('nothing to build');
+    }
+    
     
     brainExtensions.build();
     brainRoads.build();
