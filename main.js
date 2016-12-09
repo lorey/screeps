@@ -74,23 +74,23 @@ module.exports.loop = function () {
         },
         'upgrader': {
             'min': 1,
-            'max': 5
+            'max': 3
         },
         'repairer': { //defaults to upgrader
             'min': 1,
             'max': 1
         },
         'builder': { // defaults to repairers
-            'min': 3,
+            'min': 1,
             'max': 3
         },
         'wallrepairer': { // defaults to repairer
-            'min': 1,
+            'min': 0,
             'max': 1
         },
         'miner': {
-            'min': 2 * containerCount, // one for backup
-            'max': 2 * containerCount // one for backup
+            'min': containerCount + 1, // one for backup
+            'max': 2 * containerCount // one for backup for each
         }
     };
     
@@ -139,7 +139,7 @@ module.exports.loop = function () {
     if (roleToBuild != undefined) {
         var energyLevel = Math.max(Game.spawns.Spawn1.room.energyCapacityAvailable - 300, 300); // remove spawn energy as this takes too long
         Game.spawns.Spawn1.createCreepByEnergy(energyLevel, roleToBuild);
-    } else {
+    } else if (Game.spawns.Spawn1.room.energyCapacityAvailable == Game.spawns.Spawn1.room.energyAvailable && Game.time % 10 == 0){
         console.log('nothing to build');
     }
     
