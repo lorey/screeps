@@ -18,7 +18,21 @@ var roleUpgrader = {
             }
         }
         else {
-            creep.moveToAndHarvestNearestPowerSource();
+            var containers = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) => {
+                    return s.structureType == STRUCTURE_LINK;
+                }
+            });
+            
+            if (containers.length > 0) {
+                // container found (preferred)
+                var targetContainer = creep.pos.findClosestByPath(containers);
+                if (creep.withdraw(targetContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targetContainer);
+                }
+            } else {
+                creep.moveToAndHarvestNearestPowerSource();
+            }
         }
     }
 };
