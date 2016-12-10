@@ -24,6 +24,13 @@ module.exports = function() {
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(MOVE);
             }
+        } else if (role == 'upgrader') { //TODO check for links
+            body.push(MOVE);
+            body.push(MOVE);
+            body.push(CARRY);
+            for (let i = 0; i < Math.floor(energy / 100); i++) {
+                body.push(WORK);
+            }
         } else {
             // generic
             var numberOfParts = Math.floor(energy / 200);
