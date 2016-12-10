@@ -9,7 +9,7 @@ module.exports = function() {
         
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (s) => {
-                return s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0;
+                return s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 100;
             }
         });
         
